@@ -1,0 +1,104 @@
+html, body {
+	background-color: #00D0DB;
+	margin: 0;
+	padding: 0;
+}
+
+#game {
+	
+}
+
+.container {
+	width: 100vw;
+	height: 100vh;
+
+}
+
+.left {
+	float: left;
+	overflow: hidden;
+	display: inline-block;
+	margin:0;
+}
+
+/* --------------- slots for items --------------- */
+
+.item {
+	width: 20%;
+	height: 0;
+	padding-bottom: 20%;
+	float: left;
+	overflow: hidden;
+	
+}
+
+#item1 {
+	background-color: blue;
+}
+
+#item2 {
+	background-color: red;
+}
+
+#item3 {
+	background-color: blue;
+}
+
+#item4 {
+	background-color: red;
+}
+
+#item5 {
+	background-color: blue;
+}
+
+
+/* --------------- Text info --------------- */
+
+#info {
+	padding-top: 5%;
+	color: white;
+}
+
+.text-info {
+	font-size: 2em;
+	padding-bottom: 1%;
+	margin: 0;
+	padding-top: 0;
+	text-align: center;
+
+}
+
+#money {
+	font-size: 3em;
+	padding-bottom: 1%;
+	margin: 0;
+	padding-top: 0;
+	text-align: center;
+}
+
+
+#sidemenu {
+	width: 20%;
+	height: 100%;
+	background-color: grey;
+}
+
+#screen {
+	width: 80%;
+	height: 100%;
+	position: relative;
+}
+
+
+
+#buymenu {
+	position: absolute;
+	width: 70%;
+	bottom: 0;
+	left:0;
+    right:0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
