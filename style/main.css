@@ -1,5 +1,5 @@
 html, body {
-	background-color: #00D0DB;
+	background-color: #6aa8b5;
 	margin: 0;
 	padding: 0;
 	-webkit-touch-callout: none;
@@ -85,7 +85,7 @@ html, body {
 
 
 #sidemenu {
-	width: 20%;
+	width: 18%;
 	height: 100%;
 	background-color: grey;
 }
@@ -98,9 +98,9 @@ html, body {
 
 
 
-#buymenu {
+#upgrademenu {
 	position: absolute;
-	width: 70%;
+	width: 50%;
 	bottom: 0;
 	left:0;
     right:0;
@@ -111,12 +111,20 @@ html, body {
 #Clicker {
 	margin: 0;
 	position: absolute;
-	border: 1px solid black;
 	width: 40%;
 	height: 40%;
 	margin-right: auto;
 	margin-left: auto;
 	left: 0;
 	right: 0;
+}
+
+#img-clicker {
+	height: 100%;
+	margin: auto;
+	left: 0;
+	right: 0;
+	position: absolute;
+
 }
 

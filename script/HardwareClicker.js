@@ -1,8 +1,29 @@
-$(document).ready(function() {
-	startGame();
-	gameLoop();
 
-});
+Game = {};
+
+Game.intilize = function() {
+	Game.version = 0.01;
+	Game.state = "Alpha";
+
+	Game.fps = 30;
+	Game.money = 0.00;
+	Game.perSec = 0.01;
+	Game.perTap = 0;
+	Game.TotalClick = 0;
+
+	Game.perLoop = perSec/fps;
+
+	$('#perTap').text("$ " + parseFloat(calcPrefix(perTap, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
+	$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
+	AddEvent();
+	Game.Loop();
+};
+
+function AddEventClick() {
+	$('#Clicker').click(function(event) {
+		Game.money += Game.perTap;
+	});
+}
 
 //Drawing
 
@@ -21,26 +42,12 @@ var numPrefix = 0;
 var currentPrefix = [0,0,0];
 var prefix = ["", "K", "M", "B", "T", "q", "Q", "s", "S", "O", "N", "d", "U", "D", "!", "@", "#", "$", "%", "^", "&", "*", "*1", "*2", "*3", "*4", "*5", "*6", "*7", "*8", "*9", "*10"];
 
+//Images handler
 
 
-function startGame() {
-	perLoop = calcPerLoop(perSec);
-	$('#perTap').text("$ " + parseFloat(calcPrefix(perTap, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
-	$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
-	Click();
-}
 
-/* ---------------- Click ---------------- */
-
-function Click() {
-	$('#Clicker').click(function(event) {
-		money += perTap;
-	});
-
-
-}
-
-
+//Upgrades handler
+var upgrades = [];
 
 
 
@@ -71,17 +78,26 @@ function calcPrefix(number, n) {
 }
 
 
-/* ---------------- Main game loop ---------------- */
-
-gameLoop = function() {
-	money += perLoop;
-	$('#money').text("$ " + parseFloat(calcPrefix(money, 0)).toFixed(3) + " " + prefix[currentPrefix[0]]);
-	setTimeout(gameLoop, 1000/fps);
-};
-
 
 /* ---------------- Main logic ---------------- */
 
-gameLogic = function() {
+Game.Logic = function() {
 
 };
+
+
+/* ---------------- Main game loop ---------------- */
+
+Game.Loop = function() {
+	Game.Logic();
+	Game.money += Game.perLoop;
+	$('#money').text("$ " + parseFloat(calcPrefix(Game.money, 0)).toFixed(3) + " " + prefix[currentPrefix[0]]);
+	setTimeout(Game.Loop, 1000/fps);
+};
+
+
+
+
+$(document).ready(function() {
+	Game.intilize();
+});
