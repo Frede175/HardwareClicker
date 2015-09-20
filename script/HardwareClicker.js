@@ -26,14 +26,25 @@ var upgradIndex = 0;
 
 var pcs = [];
 var pcIndex = 0;
+var pcLevel = 0;
 
 //updaters
 
 var updateSec = 0;
 var updateTap = 0;
 
+//Click handler (autoclicker limit)
+var lastClick = 0;
+var click = 0;
 
-object = function(name, folder, numimg, cost, base, percent, bought) {
+
+//Updater
+
+var lastUpdate = new Date().getTime();
+
+
+
+upgrade = function(name, folder, numimg, cost, base, percent, bought) {
 	this.name = name;
 	this.folder = folder;
 	this.numimg = numimg;
@@ -41,6 +52,15 @@ object = function(name, folder, numimg, cost, base, percent, bought) {
 	this.base = base;
 	this.percent = percent;
 	this.bought = bought;
+};
+
+pc = function(name, img, cost, owned) {
+	this.name = name;
+	this.img = img;
+	this.cost = cost;
+	this.owned = owned;
+
+
 };
 
 
@@ -52,18 +72,23 @@ function intilize() {
 	//Click events
 
 	$('#Clicker').unbind().click(function(event) {
-		money += perTap;
-		TotalClick++;
+		clickPc();
 	});
 
 	$('.item').unbind().click(function(event) {
-		HandleUpgrade(this.id);
+		HandleUpgradeClick(this.id);
 	});
 
 	//Load upgrades
 	//This is the load order.
 	//Dont add in between or the save file will not work anymore
-	upgrades[upgradIndex] = new object("Disk", "images/DiskPc1/", 2, 10, 0.2, 10, 0); upgradIndex++;
+	upgrades[upgradIndex] = new upgrade("Disk", "images/PC-disk/", 2, 10, 0.2, 10, 0); upgradIndex++;
+	upgrades[upgradIndex] = new upgrade("Graphic Card", "images/PC-graphiccard/", 1, 10, 0.2, 10, 0); upgradIndex++;
+	upgrades[upgradIndex] = new upgrade("Network", "images/PC-network/", 1, 10, 0.2, 10, 0); upgradIndex++;
+	//Load pcs
+	//Same as with upgrades
+	pcs[pcIndex] = new pc("Start PC", "images/PC1.png", 0, true); pcIndex++;
+
 
 
 	initUpgrades();
@@ -71,15 +96,47 @@ function intilize() {
 	GameLoop();
 }
 
-function initUpgrades() {
-	items[0] = upgrades[0];
+/* =========================================
+Upgrades
+========================================= */
 
-	DrawItem(0);
+function initUpgrades() {
+	for (var i = 0; i < 3; i++) {
+		items[i] = upgrades[i + i * pcLevel];
+		DrawItem(i);
+	}
 }
 
+function syncUpgrade() {
+	for (var i = 0; i < 3; i++) {
+		upgrades[i + i * pcIndex] = items[i];
+	}	
+}
 
-function HandleUpgrade(id) {
-	var num = parseInt(id.substr(id.length - 1))-1;
+function goToNextPc(index) {
+	syncUpgrade();
+	pcLevel = index;
+	for (var i = 0; i < 3; i++) {
+		items[i] = upgrades[i + i * pcLevel];
+		DrawItem(i);
+	}
+}
+
+/* =========================================
+Click
+========================================= */
+
+function clickPc() {
+	if (1000/fps*2 < new Date().getTime() - lastClick)  {
+		money += perTap;
+		TotalClick++;
+		lastClick = new Date().getTime();
+	}
+	
+}
+
+function HandleUpgradeClick(id) {
+	var num = parseInt(id.substr(id.length - 1)) - 1;
 	if (money >= items[num].cost) {
 		money -= items[num].cost;
 		perSec += items[num].base * Math.pow(1 + items[num].percent/100, items[num].bought);
@@ -89,6 +146,11 @@ function HandleUpgrade(id) {
 		DrawItem(num);
 	}
 }
+		
+
+/* =========================================
+Calculation
+========================================= */
 
 function calcPerLoop(number) {
 	return number/fps;
@@ -138,6 +200,8 @@ function DrawItem(index) {
 	else
 		$('#' + strid).attr("src", '');
 
+	strid = "item" + (index+1) + "-name";
+	$('#' + strid).text(items[index].name);
 	strid = "item" + (index+1) + "-cost";
 	$('#' + strid).text('Cost $ ' + parseFloat(items[index].cost).toFixed(3));
 	strid = "item" + (index+1) + "-upgrade";
@@ -151,6 +215,11 @@ Main logic
 
 GameLogic = function() {
 	money += perLoop;
+
+
+	/* ========== Unlocks ========== */
+
+
 };
 
 /* =========================================
@@ -160,6 +229,11 @@ Main game loop
 GameLoop = function() {
 	if (updateSec == 1) {
 		perLoop = perSec/fps;
+	}
+	if (2000 < new Date().getTime() - lastUpdate) {
+		var title = "$ " + parseFloat(money).toFixed(3) + " | Hardware Clicker";
+		document.title = title;
+		lastUpdate = new Date().getTime();
 	}
 
 	GameLogic();
