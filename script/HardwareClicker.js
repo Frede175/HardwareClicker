@@ -1,22 +1,23 @@
 /* GAME */
 
-version = 0.01;
-state = "Alpha";
+var version = 0.02;
+var state = "Alpha";
 
 //Stats
 
-fps = 30;
-money = 0.00;
-perSec = 0.01;
-perTap = 1;
-TotalClick = 0;
+var targetFps = 30;
+var fps = targetFps;
+var money = 0.00;
+var perSec = 0.01;
+var perTap = 1;
+var TotalClick = 0;
 
-perLoop = perSec/fps;
+var perLoop = perSec/fps;
 
 //Prefix
 
-prefix = ["", "K", "M", "B", "T", "q", "Q", "s", "S", "O", "N", "d", "U", "D", "!", "@", "#", "$", "%", "^", "&", "*", "*1", "*2", "*3", "*4", "*5", "*6", "*7", "*8", "*9", "*10"];
-currentPrefix = [0,0,0];
+var prefix = ["", "K", "M", "B", "T", "q", "Q", "s", "S", "O", "N", "d", "U", "D", "!", "@", "#", "$", "%", "^", "&", "*", "*1", "*2", "*3", "*4", "*5", "*6", "*7", "*8", "*9", "*10"];
+var currentPrefix = [0,0,0];
 
 //Upgrades/PC handler
 var upgradesPerPc = 5;
@@ -27,6 +28,8 @@ var upgradIndex = 0;
 var pcs = [];
 var pcIndex = 0;
 var pcLevel = 0;
+var pcLevelUnlocked = 1;
+var pcLevelDrawed = 0;
 
 //updaters
 
@@ -59,25 +62,19 @@ pc = function(name, img, cost, owned) {
 	this.img = img;
 	this.cost = cost;
 	this.owned = owned;
-
-
 };
 
 
 
 function intilize() {
+	//Set version
+
+	$('#version').text('Version: ' + version + " " + state);
+
+
 	$('#perTap').text("$ " + parseFloat(calcPrefix(perTap, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
 	$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
 
-	//Click events
-
-	$('#Clicker').unbind().click(function(event) {
-		clickPc();
-	});
-
-	$('.item').unbind().click(function(event) {
-		HandleUpgradeClick(this.id);
-	});
 
 	//Load upgrades
 	//This is the load order.
@@ -88,11 +85,38 @@ function intilize() {
 	//Load pcs
 	//Same as with upgrades
 	pcs[pcIndex] = new pc("Start PC", "images/PC1.png", 0, true); pcIndex++;
-
-
+	pcs[pcIndex] = new pc("Win98 PC", "images/blank.png", 1000, false); pcIndex++;
+	pcs[pcIndex] = new pc("Win2001 PC", "images/blank.png", 50000, false); pcIndex++;
 
 	initUpgrades();
 
+	//click
+
+	$('#Clicker').unbind().click(function(event) {
+		clickPc();
+	});
+
+	$('.item').unbind().click(function(event) {
+		HandleUpgradeClick(this.id);
+	});
+
+	$('.pc-container').unbind().click(function(event) {
+		HandlePcClick(this.id);
+	});
+
+	//Handel ative and deative taps
+
+	$(window).focus(function(event) {
+		fps = targetFps;
+		perLoop = calcPerLoop(perSec);
+	});
+
+	$(window).blur(function(event) {
+		fps = 1;
+		perLoop = calcPerLoop(perSec);
+	});
+
+	DrawPcs();
 	GameLoop();
 }
 
@@ -108,7 +132,8 @@ function initUpgrades() {
 }
 
 function syncUpgrade() {
-	for (var i = 0; i < 3; i++) {
+	for (var i = 0; i < 5; i++) {
+		if (i + i * pcIndex >= upgrades.length || i >= items.length) continue;
 		upgrades[i + i * pcIndex] = items[i];
 	}	
 }
@@ -116,7 +141,8 @@ function syncUpgrade() {
 function goToNextPc(index) {
 	syncUpgrade();
 	pcLevel = index;
-	for (var i = 0; i < 3; i++) {
+	for (var i = 0; i < 5; i++) {
+		if (i + i * pcIndex >= upgrades.length || i >= items.length) continue;
 		items[i] = upgrades[i + i * pcLevel];
 		DrawItem(i);
 	}
@@ -137,6 +163,7 @@ function clickPc() {
 
 function HandleUpgradeClick(id) {
 	var num = parseInt(id.substr(id.length - 1)) - 1;
+	if (num >= items.length) return;
 	if (money >= items[num].cost) {
 		money -= items[num].cost;
 		perSec += items[num].base * Math.pow(1 + items[num].percent/100, items[num].bought);
@@ -145,6 +172,10 @@ function HandleUpgradeClick(id) {
 		updateSec = 1;
 		DrawItem(num);
 	}
+}
+
+function HandlePcClick(id) {
+
 }
 		
 
@@ -206,6 +237,47 @@ function DrawItem(index) {
 	$('#' + strid).text('Cost $ ' + parseFloat(items[index].cost).toFixed(3));
 	strid = "item" + (index+1) + "-upgrade";
 	$('#' + strid).text('$ ' + parseFloat(items[index].base * Math.pow(1 + items[index].percent/100, items[index].bought)).toFixed(3) + " per second");
+}
+
+function DrawPcs() {
+	if (pcLevelDrawed < pcLevelUnlocked) {
+		if (pcLevelUnlocked < pcs.length) {
+			AppendPcHMTL(pcLevelDrawed+1);
+			pcLevelDrawed++;
+		}
+	}
+}
+
+function AppendPcHMTL(index) {
+	var cost = pcs[index].cost;
+	if (pcs[index].owned) {
+		cost = "Owned";
+	}
+	var pcID = index+1;
+
+	var div = document.createElement('div');
+	div.setAttribute('id', 'pc' + pcID); div.setAttribute('class', 'pc-container');
+
+	var img = document.createElement('img');
+	img.setAttribute('class', 'pc-img'); img.setAttribute('src', pcs[index].img);
+
+	var pName = document.createElement('p');
+	var pCost = document.createElement('p');
+
+	pName.setAttribute('class', 'pc-name');
+	var node = document.createTextNode(pcs[index].name);
+	pName.appendChild(node);
+
+	pCost.setAttribute('class', 'pc-cost'); pCost.setAttribute('id', 'pc' + pcID + '-cost');
+	node = document.createTextNode('$ ' + pcs[index].cost);
+	pCost.appendChild(node);
+
+	div.appendChild(img);
+	div.appendChild(pName);
+	div.appendChild(pCost);
+
+	document.getElementById('sidemenu').appendChild(div);
+
 }
 
 
