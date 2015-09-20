@@ -82,7 +82,7 @@ function intilize() {
 	//Load upgrades
 	//This is the load order.
 	//Dont add in between or the save file will not work anymore
-	upgrades[upgradIndex] = new upgrade("Disk", "images/PC-disk/", 2, 10, 0.2, 10, 0); upgradIndex++;
+	upgrades[upgradIndex] = new upgrade("Disk", "images/PC-disk/", 1, 10, 0.2, 10, 0); upgradIndex++;
 	upgrades[upgradIndex] = new upgrade("Graphic Card", "images/PC-graphiccard/", 1, 10, 0.2, 10, 0); upgradIndex++;
 	upgrades[upgradIndex] = new upgrade("Network", "images/PC-network/", 1, 10, 0.2, 10, 0); upgradIndex++;
 	//Load pcs
@@ -198,7 +198,7 @@ function DrawItem(index) {
 	if (items[index].numimg >= items[index].bought+1) 
 		$('#' + strid).attr("src", items[index].folder + (items[index].bought+1) + ".png");
 	else
-		$('#' + strid).attr("src", '');
+		$('#' + strid).attr("src", 'images/blank.png');
 
 	strid = "item" + (index+1) + "-name";
 	$('#' + strid).text(items[index].name);
