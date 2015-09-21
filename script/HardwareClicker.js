@@ -130,14 +130,14 @@ Upgrades
 
 function initUpgrades() {
 	for (var i = 0; i < 5; i++) {
-		items[i] = upgrades[i + i * pcLevel];
+		items[i] = upgrades[i + 5 * pcLevel];
 		DrawItem(i);
 	}
 }
 
 function syncUpgrade() {
 	for (var i = 0; i < 5; i++) {
-		upgrades[i + i * pcIndex] = items[i];
+		upgrades[i + pcLevel * 5] = items[i];
 	}	
 }
 
@@ -146,13 +146,14 @@ function goToNextPc(index) {
 	console.log (index);
 	pcLevel = index;
 	for (var i = 0; i < 5; i++) {
+		RemoveItem(i);
 		console.log("Draw");
-		items[i] = upgrades[i + i * pcLevel];
+		items[i] = upgrades[i + 5 * pcLevel];
 		DrawItem(i);
 
 		
 	}
-
+	console.log(upgrades);
 			console.log (items);
 }
 
@@ -171,7 +172,7 @@ function clickPc() {
 
 function HandleUpgradeClick(id) {
 	var num = parseInt(id.substr(id.length - 1)) - 1;
-	if (num >= items.length) return;
+	if (num >= items.length || items[num] == null) return;
 	if (money >= items[num].cost) {
 		money -= items[num].cost;
 		perSec += items[num].base * Math.pow(1 + items[num].percent/100, items[num].bought);
