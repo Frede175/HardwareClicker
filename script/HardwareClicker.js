@@ -7,7 +7,7 @@ var state = "Alpha";
 
 var targetFps = 30;
 var fps = targetFps;
-var money = 0.00;
+var money = 1000.00;
 var perSec = 0.01;
 var perTap = 1;
 var TotalClick = 0;
@@ -44,6 +44,21 @@ var click = 0;
 //Updater
 
 var lastUpdate = new Date().getTime();
+
+
+function updateClick() {
+	$('#Clicker').unbind().click(function(event) {
+		clickPc();
+	});
+
+	$('.item').unbind().click(function(event) {
+		HandleUpgradeClick(this.id);
+	});
+
+	$('.pc-container').unbind().click(function(event) {
+		HandlePcClick(this.id);
+	});
+}
 
 
 
@@ -85,24 +100,13 @@ function intilize() {
 	//Load pcs
 	//Same as with upgrades
 	pcs[pcIndex] = new pc("Start PC", "images/PC1.png", 0, true); pcIndex++;
-	pcs[pcIndex] = new pc("Win98 PC", "images/blank.png", 1000, false); pcIndex++;
-	pcs[pcIndex] = new pc("Win2001 PC", "images/blank.png", 50000, false); pcIndex++;
+	pcs[pcIndex] = new pc("Win98 PC", "images/PC2.png", 1000, false); pcIndex++;
+	pcs[pcIndex] = new pc("Win01 PC", "images/blank.png", 50000, false); pcIndex++;
 
 	initUpgrades();
 
-	//click
+	updateClick();
 
-	$('#Clicker').unbind().click(function(event) {
-		clickPc();
-	});
-
-	$('.item').unbind().click(function(event) {
-		HandleUpgradeClick(this.id);
-	});
-
-	$('.pc-container').unbind().click(function(event) {
-		HandlePcClick(this.id);
-	});
 
 	//Handel ative and deative taps
 
@@ -125,7 +129,7 @@ Upgrades
 ========================================= */
 
 function initUpgrades() {
-	for (var i = 0; i < 3; i++) {
+	for (var i = 0; i < 5; i++) {
 		items[i] = upgrades[i + i * pcLevel];
 		DrawItem(i);
 	}
@@ -133,19 +137,23 @@ function initUpgrades() {
 
 function syncUpgrade() {
 	for (var i = 0; i < 5; i++) {
-		if (i + i * pcIndex >= upgrades.length || i >= items.length) continue;
 		upgrades[i + i * pcIndex] = items[i];
 	}	
 }
 
 function goToNextPc(index) {
 	syncUpgrade();
+	console.log (index);
 	pcLevel = index;
 	for (var i = 0; i < 5; i++) {
-		if (i + i * pcIndex >= upgrades.length || i >= items.length) continue;
+		console.log("Draw");
 		items[i] = upgrades[i + i * pcLevel];
 		DrawItem(i);
+
+		
 	}
+
+			console.log (items);
 }
 
 /* =========================================
@@ -175,6 +183,25 @@ function HandleUpgradeClick(id) {
 }
 
 function HandlePcClick(id) {
+	var num = parseInt(id.substr(id.length - 1)) - 1;
+	console.log('ID: '+ id + ' num: ' + num);
+	if (num >= pcs.length) return;
+	var bought = pcs[num].owned;
+	if (!bought) {
+		if (money >= pcs[num].cost) {
+			money -= pcs[num].cost;
+			pcs[num].owned = true;
+			pcs[num].cost = "Owned";
+			updatePcHTML(num);
+			pcLevelUnlocked++;
+			DrawPcs();
+		}
+	}
+	if (pcLevel == num || !pcs[num].owned) return;
+	else {
+		ChangePc(num);
+}
+
 
 }
 		
@@ -225,6 +252,7 @@ Draw = function() {
 };
 
 function DrawItem(index) {
+	if (items[index] == null) return;
 	var strid = "item" + (index+1) + "-img";
 	if (items[index].numimg >= items[index].bought+1) 
 		$('#' + strid).attr("src", items[index].folder + (items[index].bought+1) + ".png");
@@ -239,11 +267,24 @@ function DrawItem(index) {
 	$('#' + strid).text('$ ' + parseFloat(items[index].base * Math.pow(1 + items[index].percent/100, items[index].bought)).toFixed(3) + " per second");
 }
 
+function RemoveItem(index) {
+	var strid = "item" + (index+1) + "-img";
+	$('#' + strid).attr("src", 'images/blank.png');
+
+	strid = "item" + (index+1) + "-name";
+	$('#' + strid).text("");
+	strid = "item" + (index+1) + "-cost";
+	$('#' + strid).text("");
+	strid = "item" + (index+1) + "-upgrade";
+	$('#' + strid).text("");
+}
+
 function DrawPcs() {
 	if (pcLevelDrawed < pcLevelUnlocked) {
 		if (pcLevelUnlocked < pcs.length) {
 			AppendPcHMTL(pcLevelDrawed+1);
 			pcLevelDrawed++;
+			updateClick();
 		}
 	}
 }
@@ -278,6 +319,17 @@ function AppendPcHMTL(index) {
 
 	document.getElementById('sidemenu').appendChild(div);
 
+}
+
+function updatePcHTML(index) {
+	var id = "pc" + (index+1) + "-cost";
+	$('#' + id).text(pcs[index].cost);
+}
+
+function ChangePc(index) {
+	console.log("Change pc");
+	goToNextPc(index);
+	$('#img-clicker').attr("src", pcs[pcLevel].img);
 }
 
 
