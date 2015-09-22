@@ -82,6 +82,22 @@ html, body {
 	font-family: Verdana;
 }
 
+.item-litle-text {
+
+}
+
+.hoverbox {
+	display: none;
+	z-index: 9;
+	position: fixed;
+	font-size: 12px Verdana;
+	border: 1px white solid;
+	background: rgb(0,0,0); /* Fall-back for browsers that don't
+                                    support rgba */
+    background: rgba(0,0,0, .5);
+
+}
+
 
 /* --------------- Pc upgrades --------------- */
 

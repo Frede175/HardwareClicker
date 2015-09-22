@@ -9,8 +9,10 @@ var targetFps = 30;
 var fps = targetFps;
 var money = 1000.00;
 var perSec = 0.01;
-var perTap = 1;
-var TotalClick = 0;
+var perClick = 1;
+var totalClicks = 0;
+var totalMoneyEarned = 0;
+var totalMoneyEarnedByClick = 0;
 
 var perLoop = perSec/fps;
 
@@ -45,13 +47,12 @@ var click = 0;
 
 var lastUpdate = new Date().getTime();
 
-
 function updateClick() {
 	$('#Clicker').unbind().click(function(event) {
 		clickPc();
 	});
 
-	$('.item').unbind().click(function(event) {
+	$('.item').click(function(event) {
 		HandleUpgradeClick(this.id);
 	});
 
@@ -87,14 +88,14 @@ function intilize() {
 	$('#version').text('Version: ' + version + " " + state);
 
 
-	$('#perTap').text("$ " + parseFloat(calcPrefix(perTap, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
+	$('#perClick').text("$ " + parseFloat(calcPrefix(perClick, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
 	$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
 
 
 	//Load upgrades
 	//This is the load order.
 	//Dont add in between or the save file will not work anymore
-	upgrades[upgradIndex] = new upgrade("Disk", "images/PC-disk/", 1, 10, 0.2, 10, 0); upgradIndex++;
+	upgrades[upgradIndex] = new upgrade("Floppy Disk", "images/PC-disk/", 1, 10, 0.2, 10, 0); upgradIndex++;
 	upgrades[upgradIndex] = new upgrade("Graphic Card", "images/PC-graphiccard/", 1, 10, 0.2, 10, 0); upgradIndex++;
 	upgrades[upgradIndex] = new upgrade("Network", "images/PC-network/", 1, 10, 0.2, 10, 0); upgradIndex++;
 	//Load pcs
@@ -106,6 +107,27 @@ function intilize() {
 	initUpgrades();
 
 	updateClick();
+
+	$('.item').hover(function() {
+		console.log("Hover in " + this.id);
+		var num = parseInt(this.id.substr(this.id.length - 1)) - 1;
+		if (items[num] == null) return;
+		$(this).children('.hoverbox').css('display', 'block');
+
+	}, function() {
+		console.log("Hover out");
+		$(this).children('.hoverbox').css('display', 'none');
+		
+	}).mousemove(function(e) {
+		var num = parseInt(this.id.substr(this.id.length - 1)) - 1;
+		if (items[num] == null) return;
+		mX = e.pageX - $(this).children('.hoverbox').width() - 10;
+		mY = e.pageY - $(this).children('.hoverbox').height() - 5;
+		$(this).children('.hoverbox').css({
+			left: mX,
+			top: mY
+		});
+	});
 
 
 	//Handel ative and deative taps
@@ -157,14 +179,18 @@ function goToNextPc(index) {
 			console.log (items);
 }
 
+
+
 /* =========================================
 Click
 ========================================= */
 
 function clickPc() {
 	if (1000/fps*2 < new Date().getTime() - lastClick)  {
-		money += perTap;
-		TotalClick++;
+		money += perClick;
+		totalClicks++;
+		totalMoneyEarnedByClick += perClick;
+		totalMoneyEarned += perClick;
 		lastClick = new Date().getTime();
 	}
 	
@@ -247,7 +273,7 @@ Draw = function() {
 		$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
 	}
 	if (updateTap == 1) {
-		$('#perTap').text("$ " + parseFloat(calcPrefix(perTap, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
+		$('#perClick').text("$ " + parseFloat(calcPrefix(perClick, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
 	}
 
 };
@@ -340,7 +366,7 @@ Main logic
 
 GameLogic = function() {
 	money += perLoop;
-
+	totalMoneyEarned += perLoop;
 
 	/* ========== Unlocks ========== */
 
@@ -360,7 +386,6 @@ GameLoop = function() {
 		document.title = title;
 		lastUpdate = new Date().getTime();
 	}
-
 	GameLogic();
 	Draw();
 	updateSec = 0;
