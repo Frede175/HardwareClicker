@@ -88,8 +88,8 @@ function intilize() {
 	$('#version').text('Version: ' + version + " " + state);
 
 
-	$('#perClick').text("$ " + parseFloat(calcPrefix(perClick, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
-	$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
+	$('#perClick').text("$ " + parseFloat(MakePretty(perClick, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
+	$('#perSec').text("$ " + parseFloat(MakePretty(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
 
 
 	//Load upgrades
@@ -250,7 +250,7 @@ function getInfoString(number, x) {
 	return returnnum;
 }
 
-function calcPrefix(number, n) {
+function MakePretty(number) {
 	var x = 0;
 	var l = parseFloat(getInfoString(number, x)).toFixed(0).toString().length;
 
@@ -258,8 +258,7 @@ function calcPrefix(number, n) {
 		x++;
 		l = parseFloat(getInfoString(number, x)).toFixed(0).toString().length;
 	}
-	currentPrefix[n] = x;
-	return getInfoString(number, x);
+	return parseFloat(getInfoString(number, x)).toFixed(3) + " " + prefix[x];
 }
 
 /* =========================================
@@ -267,13 +266,13 @@ Draw
 ========================================= */
 
 Draw = function() {
-	$('#money').text("$ " + parseFloat(calcPrefix(money, 0)).toFixed(3) + " " + prefix[currentPrefix[0]]);
+	$('#money').text("$ " + MakePretty(money));
 
 	if (updateSec == 1) {
-		$('#perSec').text("$ " + parseFloat(calcPrefix(perSec, 1)).toFixed(3) + " " + prefix[currentPrefix[1]] + " per second");
+		$('#perSec').text("$ " + MakePretty(perSec) + " per second");
 	}
 	if (updateTap == 1) {
-		$('#perClick').text("$ " + parseFloat(calcPrefix(perClick, 2)).toFixed(3) + " " + prefix[currentPrefix[2]] + " per tap");
+		$('#perClick').text("$ " + MakePretty(perClick) + " per tap");
 	}
 
 };
@@ -289,9 +288,9 @@ function DrawItem(index) {
 	strid = "item" + (index+1) + "-name";
 	$('#' + strid).text(items[index].name);
 	strid = "item" + (index+1) + "-cost";
-	$('#' + strid).text('Cost $ ' + parseFloat(items[index].cost).toFixed(3));
+	$('#' + strid).text('Cost $ ' + MakePretty(items[index].cost));
 	strid = "item" + (index+1) + "-upgrade";
-	$('#' + strid).text('$ ' + parseFloat(items[index].base * Math.pow(1 + items[index].percent/100, items[index].bought)).toFixed(3) + " per second");
+	$('#' + strid).text('$ ' + MakePretty(items[index].base * Math.pow(1 + items[index].percent/100, items[index].bought))+ " per second");
 }
 
 function RemoveItem(index) {
@@ -382,7 +381,7 @@ GameLoop = function() {
 		perLoop = perSec/fps;
 	}
 	if (2000 < new Date().getTime() - lastUpdate) {
-		var title = "$ " + parseFloat(money).toFixed(3) + " | Hardware Clicker";
+		var title = "$ " + MakePretty(money) + " | Hardware Clicker";
 		document.title = title;
 		lastUpdate = new Date().getTime();
 	}
